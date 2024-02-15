@@ -1,5 +1,6 @@
 package com.commenter;
 
+import com.commenter.handler.PostHandler;
 import ratpack.core.server.RatpackServer;
 
 public class Main {
@@ -11,6 +12,11 @@ public class Main {
         .handlers(chain -> chain
             .get(ctx -> ctx.render("Hello World!"))
             .get(":name", ctx -> ctx.render("Hello " + ctx.getPathTokens().get("name") + "!"))
+            .prefix("api", apiPath -> apiPath
+                .prefix("post", postPath -> postPath
+                    .get("", new PostHandler())
+                )
+            )
         )
     );
   }
