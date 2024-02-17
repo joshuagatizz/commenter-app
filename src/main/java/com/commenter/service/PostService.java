@@ -1,6 +1,6 @@
 package com.commenter.service;
 
-import com.commenter.model.CreateNewPostRequest;
+import com.commenter.model.CreateEditPostRequest;
 import com.commenter.model.Post;
 
 import java.sql.Connection;
@@ -34,7 +34,7 @@ public class PostService {
     }
   }
 
-  public Post createNewPost(CreateNewPostRequest request) {
+  public Post createNewPost(CreateEditPostRequest request) {
     try (Connection connection = DatabaseService.getConnection();
          PreparedStatement statement = connection.prepareStatement(
              "INSERT INTO posts (\"user\", title, content) VALUES (?, ?, ?) RETURNING id, title, content, \"user\"");
@@ -60,6 +60,37 @@ public class PostService {
       }
     } catch (SQLException e) {
       throw new RuntimeException("Failed to create a new post", e);
+    }
+    return null;
+  }
+
+  public Post editPostById(int postId, CreateEditPostRequest request) {
+    try (Connection connection = DatabaseService.getConnection();
+         PreparedStatement statement = connection.prepareStatement(
+             "UPDATE posts SET title = ?, content = ? WHERE id = ? RETURNING id, title, content, \"user\"");
+    ) {
+
+      statement.setString(1, request.getTitle());
+      statement.setString(2, request.getContent());
+      statement.setInt(3, postId);
+
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
+          int id = resultSet.getInt("id");
+          String title = resultSet.getString("title");
+          String content = resultSet.getString("content");
+          String user = resultSet.getString("user");
+
+          return Post.builder()
+              .id(id)
+              .title(title)
+              .content(content)
+              .user(user)
+              .build();
+        }
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to update post", e);
     }
     return null;
   }

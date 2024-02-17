@@ -9,11 +9,10 @@ public class Main {
         .serverConfig(config -> config.port(8080))
         .handlers(chain -> chain
             .prefix("api", api -> api
-                .path("post", postPath -> postPath
-                    .byMethod(spec -> spec
-                        .get(new PostHandler())
-                        .post(new PostHandler())
-                    )
+                .prefix("post", postApi -> postApi
+                    .get(new PostHandler())
+                    .post(new PostHandler())
+                    .put(":id", new PostHandler())
                 )
             )
         )

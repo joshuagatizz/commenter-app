@@ -1,6 +1,6 @@
 package com.commenter.handler;
 
-import com.commenter.model.CreateNewPostRequest;
+import com.commenter.model.CreateEditPostRequest;
 import com.commenter.service.PostService;
 import com.commenter.service.helper.ResponseHelper;
 import ratpack.core.handling.Context;
@@ -18,8 +18,13 @@ public class PostHandler implements Handler {
     if (context.getRequest().getMethod().isGet()) {
       context.render(json(ResponseHelper.ok(postService.getAllPosts())));
     } else if (context.getRequest().getMethod().isPost()) {
-      context.parse(fromJson(CreateNewPostRequest.class))
+      context.parse(fromJson(CreateEditPostRequest.class))
           .then(request -> context.render(json(ResponseHelper.ok(postService.createNewPost(request)))));
+    } else if (context.getRequest().getMethod().isPut()) {
+      int id = Integer.parseInt(context.getPathTokens().get("id"));
+      context.parse(fromJson(CreateEditPostRequest.class))
+          .then(request -> context.render(
+              json(ResponseHelper.ok(postService.editPostById(id, request)))));
     }
   }
 }
