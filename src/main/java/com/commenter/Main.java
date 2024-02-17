@@ -10,9 +10,15 @@ public class Main {
         .handlers(chain -> chain
             .prefix("api", api -> api
                 .prefix("post", postApi -> postApi
-                    .get(new PostHandler())
-                    .post(new PostHandler())
-                    .put(":id", new PostHandler())
+                    .path(path -> path.byMethod(method -> method
+                        .get(new PostHandler())
+                        .post(new PostHandler())))
+                    .prefix(":id", id -> id
+                        .path(path -> path.byMethod(method -> method
+                            .put(new PostHandler())
+                            .delete(new PostHandler())
+                        ))
+                    )
                 )
             )
         )

@@ -81,17 +81,26 @@ public class PostService {
           String content = resultSet.getString("content");
           String user = resultSet.getString("user");
 
-          return Post.builder()
-              .id(id)
-              .title(title)
-              .content(content)
-              .user(user)
-              .build();
+          return Post.builder().id(id).title(title).content(content).user(user).build();
         }
       }
     } catch (SQLException e) {
-      throw new RuntimeException("Failed to update post", e);
+      throw new RuntimeException("Failed to edit post", e);
     }
     return null;
+  }
+
+  public boolean deletePostById(int postId) {
+    try (Connection connection = DatabaseService.getConnection();
+         PreparedStatement statement = connection.prepareStatement(
+             "DELETE FROM posts WHERE id = ?");
+    ) {
+      statement.setInt(1, postId);
+
+      int affectedRows = statement.executeUpdate();
+      return affectedRows > 0;
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to delete post", e);
+    }
   }
 }
