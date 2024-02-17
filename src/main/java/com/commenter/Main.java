@@ -12,6 +12,7 @@ public class Main {
                 .path("post", postPath -> postPath
                     .byMethod(spec -> spec
                         .get(new PostHandler())
+                        .post(new PostHandler())
                     )
                 )
             )
