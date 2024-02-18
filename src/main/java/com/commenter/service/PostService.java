@@ -64,30 +64,19 @@ public class PostService {
     return null;
   }
 
-  public Post editPostById(int postId, CreateEditPostRequest request) {
+  public boolean editPostById(int postId, CreateEditPostRequest request) {
     try (Connection connection = DatabaseService.getConnection();
          PreparedStatement statement = connection.prepareStatement(
-             "UPDATE posts SET title = ?, content = ? WHERE id = ? RETURNING id, title, content, \"user\"");
+             "UPDATE posts SET title = ?, content = ? WHERE id = ?");
     ) {
-
       statement.setString(1, request.getTitle());
       statement.setString(2, request.getContent());
       statement.setInt(3, postId);
-
-      try (ResultSet resultSet = statement.executeQuery()) {
-        if (resultSet.next()) {
-          int id = resultSet.getInt("id");
-          String title = resultSet.getString("title");
-          String content = resultSet.getString("content");
-          String user = resultSet.getString("user");
-
-          return Post.builder().id(id).title(title).content(content).user(user).build();
-        }
-      }
+      int affectedRows = statement.executeUpdate();
+      return affectedRows > 0;
     } catch (SQLException e) {
       throw new RuntimeException("Failed to edit post", e);
     }
-    return null;
   }
 
   public boolean deletePostById(int postId) {
