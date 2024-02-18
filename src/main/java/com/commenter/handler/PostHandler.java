@@ -29,7 +29,7 @@ public class PostHandler implements Handler {
               json(ResponseHelper.ok(postService.editPostById(id, request)))));
     } else if (context.getRequest().getMethod().isDelete()) {
       int id = Integer.parseInt(context.getAllPathTokens().get("id"));
-      context.render(json(postService.deletePostById(id)));
+      context.render(json(ResponseHelper.ok(postService.deletePostById(id))));
     } else {
       context.render(json(ResponseHelper.badRequest(Collections.singletonList("Method not allowed"))));
     }
