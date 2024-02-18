@@ -12,7 +12,7 @@ public class Main {
         .registry(Guice.registry(b -> b.module(AppModule.class)))
         .handlers(chain -> chain
             .prefix("api", api -> api
-                .prefix("post", postApi -> postApi
+                .prefix("posts", postApi -> postApi
                     .path(path -> path.byMethod(method -> method
                         .get(PostHandler.class)
                         .post(PostHandler.class)))
