@@ -2,6 +2,7 @@ package com.commenter.service;
 
 import com.commenter.model.CreateEditPostRequest;
 import com.commenter.model.Post;
+import com.google.inject.Inject;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,12 @@ public class PostService {
   private static final String DELETE_POST_BY_ID_QUERY =
       "DELETE FROM posts WHERE id = ?";
 
-  private final DatabaseService databaseService = new DatabaseService();
+  private final DatabaseService databaseService;
+
+  @Inject
+  public PostService(DatabaseService databaseService) {
+    this.databaseService = databaseService;
+  }
 
   public List<Post> getAllPosts() {
     try {
