@@ -1,6 +1,7 @@
 package com.commenter;
 
 import com.commenter.config.AppModule;
+import com.commenter.handler.CommentHandler;
 import com.commenter.handler.PostHandler;
 import ratpack.core.server.RatpackServer;
 import ratpack.guice.Guice;
@@ -16,11 +17,15 @@ public class Main {
                     .path(path -> path.byMethod(method -> method
                         .get(PostHandler.class)
                         .post(PostHandler.class)))
-                    .prefix(":id", id -> id
+                    .prefix(":postId", id -> id
                         .path(path -> path.byMethod(method -> method
                             .put(PostHandler.class)
                             .delete(PostHandler.class)
-                        ))
+                        )).prefix("comments", comment -> comment
+                            .path(path -> path.byMethod(method -> method
+                                .get(CommentHandler.class)
+                            ))
+                        )
                     )
                 )
             )
