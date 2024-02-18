@@ -3,93 +3,60 @@ package com.commenter.service;
 import com.commenter.model.CreateEditPostRequest;
 import com.commenter.model.Post;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PostService {
+
+  private static final String GET_ALL_POST_QUERY =
+      "SELECT * FROM posts";
+  private static final String CREATE_NEW_POST_QUERY =
+      "INSERT INTO posts (\"user\", title, content) VALUES (?, ?, ?) RETURNING id, title, content, \"user\"";
+  private static final String UPDATE_POST_BY_ID_QUERY =
+      "UPDATE posts SET title = ?, content = ? WHERE id = ?";
+  private static final String DELETE_POST_BY_ID_QUERY =
+      "DELETE FROM posts WHERE id = ?";
+
+  private final DatabaseService databaseService = new DatabaseService();
+
   public List<Post> getAllPosts() {
-    try (Connection connection = DatabaseService.getConnection();
-         PreparedStatement statement = connection.prepareStatement("SELECT * FROM POSTS");
-         ResultSet resultSet = statement.executeQuery()) {
-
-        List<Post> posts = new ArrayList<>();
-
-        while (resultSet.next()) {
-          Post post = Post.builder()
-              .id(resultSet.getInt("id"))
-              .title(resultSet.getString("title"))
-              .content(resultSet.getString("content"))
-              .user(resultSet.getString("user"))
-              .build();
-
-          posts.add(post);
-        }
-        return posts;
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed getting all post");
+    try {
+      return databaseService.executeQuery(GET_ALL_POST_QUERY)
+          .stream()
+          .map(this::toPost)
+          .toList();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to get all posts", e);
     }
   }
 
   public Post createNewPost(CreateEditPostRequest request) {
-    try (Connection connection = DatabaseService.getConnection();
-         PreparedStatement statement = connection.prepareStatement(
-             "INSERT INTO posts (\"user\", title, content) VALUES (?, ?, ?) RETURNING id, title, content, \"user\"");
-    ) {
-      statement.setString(1, request.getUser());
-      statement.setString(2, request.getTitle());
-      statement.setString(3, request.getContent());
-
-      try (ResultSet resultSet = statement.executeQuery()) {
-        if (resultSet.next()) {
-          int id = resultSet.getInt("id");
-          String title = resultSet.getString("title");
-          String content = resultSet.getString("content");
-          String user = resultSet.getString("user");
-
-          return Post.builder()
-              .id(id)
-              .title(title)
-              .content(content)
-              .user(user)
-              .build();
-        }
-      }
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to create a new post", e);
-    }
-    return null;
+    return databaseService.executeQuery(
+            CREATE_NEW_POST_QUERY,
+            request.getUser(), request.getTitle(), request.getContent())
+        .stream()
+        .findFirst()
+        .map(this::toPost)
+        .orElseThrow(() -> new RuntimeException("Failed to create a new post"));
   }
 
   public boolean editPostById(int postId, CreateEditPostRequest request) {
-    try (Connection connection = DatabaseService.getConnection();
-         PreparedStatement statement = connection.prepareStatement(
-             "UPDATE posts SET title = ?, content = ? WHERE id = ?");
-    ) {
-      statement.setString(1, request.getTitle());
-      statement.setString(2, request.getContent());
-      statement.setInt(3, postId);
-      int affectedRows = statement.executeUpdate();
-      return affectedRows > 0;
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to edit post", e);
-    }
+    int affectedRows = databaseService.executeUpdate(
+        UPDATE_POST_BY_ID_QUERY, request.getTitle(), request.getContent(), postId);
+    return affectedRows > 0;
   }
 
   public boolean deletePostById(int postId) {
-    try (Connection connection = DatabaseService.getConnection();
-         PreparedStatement statement = connection.prepareStatement(
-             "DELETE FROM posts WHERE id = ?");
-    ) {
-      statement.setInt(1, postId);
+    int affectedRows = databaseService.executeUpdate(DELETE_POST_BY_ID_QUERY, postId);
+    return affectedRows > 0;
+  }
 
-      int affectedRows = statement.executeUpdate();
-      return affectedRows > 0;
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to delete post", e);
-    }
+  private Post toPost(Map<String, Object> mp) {
+    return Post.builder()
+        .id((Integer) mp.get("id"))
+        .title((String) mp.get("title"))
+        .content((String) mp.get("content"))
+        .user((String) mp.get("user"))
+        .build();
   }
 }
