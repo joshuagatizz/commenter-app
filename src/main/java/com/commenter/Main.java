@@ -17,7 +17,7 @@ public class Main {
                     .path(path -> path.byMethod(method -> method
                         .get(PostHandler.class)
                         .post(PostHandler.class)))
-                    .prefix(":postId", id -> id
+                    .prefix(":postId", postId -> postId
                         .path(path -> path.byMethod(method -> method
                             .put(PostHandler.class)
                             .delete(PostHandler.class)
@@ -26,6 +26,11 @@ public class Main {
                                 .get(CommentHandler.class)
                                 .post(CommentHandler.class)
                             ))
+                            .prefix(":commentId", commentId -> commentId
+                                .path(path -> path.byMethod(method -> method
+                                    .put(CommentHandler.class)
+                                ))
+                            )
                         )
                     )
                 )

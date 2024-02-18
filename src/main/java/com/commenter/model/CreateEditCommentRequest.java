@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCommentRequest {
+public class CreateEditCommentRequest {
   private String user;
   private String content;
 }
