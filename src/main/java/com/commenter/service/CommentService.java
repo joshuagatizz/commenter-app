@@ -15,6 +15,8 @@ public class CommentService {
       "INSERT INTO comments (\"user\", content, post_id) VALUES (?, ?, ?) RETURNING id, \"user\", content, post_id";
   private static final String UPDATE_COMMENT_BY_ID_QUERY =
       "UPDATE comments SET content = ? WHERE id = ?";
+  private static final String DELETE_COMMENT_BY_ID_QUERY =
+      "DELETE FROM comments WHERE id = ?";
   private final DatabaseService databaseService;
 
   @Inject
@@ -46,6 +48,11 @@ public class CommentService {
   public boolean editCommentById(int commentId, CreateEditCommentRequest request) {
     int affectedRows = databaseService.executeUpdate(
         UPDATE_COMMENT_BY_ID_QUERY, request.getContent(), commentId);
+    return affectedRows > 0;
+  }
+
+  public Object deleteCommentById(int commentId) {
+    int affectedRows = databaseService.executeUpdate(DELETE_COMMENT_BY_ID_QUERY, commentId);
     return affectedRows > 0;
   }
 

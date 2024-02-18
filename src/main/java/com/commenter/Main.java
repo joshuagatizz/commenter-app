@@ -29,6 +29,7 @@ public class Main {
                             .prefix(":commentId", commentId -> commentId
                                 .path(path -> path.byMethod(method -> method
                                     .put(CommentHandler.class)
+                                    .delete(CommentHandler.class)
                                 ))
                             )
                         )
