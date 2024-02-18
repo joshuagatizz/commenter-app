@@ -1,5 +1,6 @@
 package com.commenter.handler;
 
+import com.commenter.model.CreateCommentRequest;
 import com.commenter.service.CommentService;
 import com.commenter.service.helper.ResponseHelper;
 import com.google.inject.Inject;
@@ -8,6 +9,7 @@ import ratpack.core.handling.Handler;
 
 import java.util.Collections;
 
+import static ratpack.core.jackson.Jackson.fromJson;
 import static ratpack.core.jackson.Jackson.json;
 
 public class CommentHandler implements Handler {
@@ -24,6 +26,11 @@ public class CommentHandler implements Handler {
     if (context.getRequest().getMethod().isGet()) {
       int postId = Integer.parseInt(context.getAllPathTokens().get("postId"));
       context.render(json(ResponseHelper.ok(commentService.getAllCommentsByPostId(postId))));
+    } else if (context.getRequest().getMethod().isPost()) {
+      int postId = Integer.parseInt(context.getAllPathTokens().get("postId"));
+      context.parse(fromJson(CreateCommentRequest.class))
+          .then(request -> context.render(
+              json(ResponseHelper.ok(commentService.createNewComment(postId, request)))));
     } else {
       context.render(json(ResponseHelper.badRequest(Collections.singletonList("Method not allowed"))));
     }

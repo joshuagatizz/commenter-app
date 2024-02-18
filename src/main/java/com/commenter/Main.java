@@ -24,6 +24,7 @@ public class Main {
                         )).prefix("comments", comment -> comment
                             .path(path -> path.byMethod(method -> method
                                 .get(CommentHandler.class)
+                                .post(CommentHandler.class)
                             ))
                         )
                     )
