@@ -7,6 +7,12 @@ plugins {
 group = "com.commenter"
 version = "1.0-SNAPSHOT"
 
+ratpack {
+    application {
+        mainClass.set("com.commenter.Main")
+    }
+}
+
 repositories {
     mavenCentral()
 }
