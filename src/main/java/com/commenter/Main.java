@@ -2,7 +2,9 @@ package com.commenter;
 
 import com.commenter.config.AppModule;
 import com.commenter.handler.CommentHandler;
+import com.commenter.handler.CustomErrorHandler;
 import com.commenter.handler.PostHandler;
+import ratpack.core.error.ClientErrorHandler;
 import ratpack.core.server.RatpackServer;
 import ratpack.guice.Guice;
 
@@ -10,7 +12,10 @@ public class Main {
   public static void main(String[] args) throws Exception {
     RatpackServer.start(server -> server
         .serverConfig(config -> config.port(8080))
-        .registry(Guice.registry(b -> b.module(AppModule.class)))
+        .registry(Guice.registry(bindings -> {
+          bindings.module(AppModule.class);
+          bindings.bind(ClientErrorHandler.class, CustomErrorHandler.class);
+        }))
         .handlers(chain -> chain
             .prefix("api", api -> api
                 .prefix("posts", postApi -> postApi

@@ -37,7 +37,7 @@ public class PostHandler implements Handler {
       int id = Integer.parseInt(context.getAllPathTokens().get("postId"));
       context.render(json(ResponseHelper.ok(postService.deletePostById(id))));
     } else {
-      context.render(json(ResponseHelper.badRequest(Collections.singletonList("Method not allowed"))));
+      context.render(json(ResponseHelper.status(ResponseHelper.HttpStatus.METHOD_NOT_ALLOWED)));
     }
   }
 }

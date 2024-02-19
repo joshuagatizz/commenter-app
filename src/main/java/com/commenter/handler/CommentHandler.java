@@ -40,7 +40,7 @@ public class CommentHandler implements Handler {
       int commentId = Integer.parseInt(context.getAllPathTokens().get("commentId"));
       context.render(json(ResponseHelper.ok(commentService.deleteCommentById(commentId))));
     } else {
-      context.render(json(ResponseHelper.badRequest(Collections.singletonList("Method not allowed"))));
+      context.render(json(ResponseHelper.status(ResponseHelper.HttpStatus.METHOD_NOT_ALLOWED)));
     }
   }
 }
