@@ -19,7 +19,7 @@ public class PostService {
   private static final String GET_POST_BY_ID_AND_USER_QUERY =
       "SELECT * FROM posts WHERE id = ? AND \"user\" = ?";
   private static final String CREATE_NEW_POST_QUERY =
-      "INSERT INTO posts (\"user\", title, content) VALUES (?, ?, ?) RETURNING id, title, content, \"user\"";
+      "INSERT INTO posts (\"user\", title, content) VALUES (?, ?, ?) RETURNING id, title, content, \"user\", comments";
   private static final String UPDATE_POST_BY_ID_QUERY =
       "UPDATE posts SET title = ?, content = ? WHERE id = ?";
   private static final String INCREMENT_POST_COMMENT_BY_ID_QUERY =
