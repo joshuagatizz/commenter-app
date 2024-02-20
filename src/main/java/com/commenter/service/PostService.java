@@ -100,7 +100,7 @@ public class PostService {
   }
 
   public ResponseVO<Boolean> deletePostById(int postId, String user) {
-    if (user == null) {
+    if (user == null || user.isEmpty()) {
       return ResponseVO.<Boolean>builder().errors(Collections.singletonList("The user field cannot be empty")).build();
     }
     try {
