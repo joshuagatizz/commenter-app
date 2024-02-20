@@ -25,41 +25,53 @@ public class PostHandler implements Handler {
   @Override
   public void handle(Context context) {
     if (context.getRequest().getMethod().isGet()) {
-      context.render(json(ResponseHelper.ok(postService.getAllPosts().getData())));
+      handleGet(context);
     } else if (context.getRequest().getMethod().isPost()) {
-      context.parse(fromJson(CreateEditPostRequest.class))
-          .then(request -> {
-            ResponseVO<Post> result = postService.createNewPost(request);
-            if (result.getErrors() != null && !result.getErrors().isEmpty()) {
-              context.render(json(ResponseHelper.badRequest(result.getErrors())));
-            } else {
-              context.render(json(ResponseHelper.ok(result.getData())));
-            }
-          });
+      handlePost(context);
     } else if (context.getRequest().getMethod().isPut()) {
-      int id = Integer.parseInt(context.getAllPathTokens().get("postId"));
-      context.parse(fromJson(CreateEditPostRequest.class))
-          .then(request -> {
-            ResponseVO<Boolean> result = postService.editPostById(id, request);
-            if (result.getErrors() != null && !result.getErrors().isEmpty()) {
-              context.render(json(ResponseHelper.badRequest(result.getErrors())));
-            } else {
-              context.render(json(ResponseHelper.ok(result.getData())));
-            }
-          });
+      handlePut(context);
     } else if (context.getRequest().getMethod().isDelete()) {
-      int id = Integer.parseInt(context.getAllPathTokens().get("postId"));
-      context.parse(fromJson(DeletePostCommentRequest.class))
-          .then(request -> {
-            ResponseVO<Boolean> result = postService.deletePostById(id, request.getUser());
-            if (result.getErrors() != null && !result.getErrors().isEmpty()) {
-              context.render(json(ResponseHelper.notFound(Boolean.FALSE)));
-            } else {
-              context.render(json(ResponseHelper.ok(result.getData())));
-            }
-          });
+      handleDelete(context);
     } else {
       context.render(json(ResponseHelper.status(ResponseHelper.HttpStatus.METHOD_NOT_ALLOWED)));
+    }
+  }
+
+  private void handleGet(Context context) {
+    context.render(json(ResponseHelper.ok(postService.getAllPosts().getData())));
+  }
+
+  private void handlePost(Context context) {
+    context.parse(fromJson(CreateEditPostRequest.class))
+        .then(request -> {
+          ResponseVO<Post> result = postService.createNewPost(request);
+          renderResponse(context, result);
+        });
+  }
+
+  private void handlePut(Context context) {
+    int id = Integer.parseInt(context.getAllPathTokens().get("postId"));
+    context.parse(fromJson(CreateEditPostRequest.class))
+        .then(request -> {
+          ResponseVO<Boolean> result = postService.editPostById(id, request);
+          renderResponse(context, result);
+        });
+  }
+
+  private void handleDelete(Context context) {
+    int id = Integer.parseInt(context.getAllPathTokens().get("postId"));
+    context.parse(fromJson(DeletePostCommentRequest.class))
+        .then(request -> {
+          ResponseVO<Boolean> result = postService.deletePostById(id, request.getUser());
+          renderResponse(context, result);
+        });
+  }
+
+  private <T> void renderResponse(Context context, ResponseVO<T> result) {
+    if (result.getErrors() != null) {
+      context.render(json(ResponseHelper.badRequest(result.getErrors())));
+    } else {
+      context.render(json(ResponseHelper.ok(result.getData())));
     }
   }
 }
